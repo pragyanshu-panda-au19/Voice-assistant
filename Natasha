@@ -1,0 +1,251 @@
+import ntpath
+from time import time
+import pyttsx3
+import requests #pip install pyttsx3
+import speech_recognition as sr #pip install speechRecognition
+import datetime
+import wikipedia #pip install wikipedia
+import webbrowser
+import os
+import smtplib
+import pywikihow
+import cv2
+import pywhatkit as kit
+import pyjokes
+import pyautogui
+
+from wikipedia.wikipedia import search
+from pywikihow import search_wikihow
+from requests import get
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+# print(voices[1].id)
+engine.setProperty('voice', voices[1].id)
+naam= "Natasha"
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if hour>=0 and hour<12:
+        speak("Good Morning!")
+
+    elif hour>=12 and hour<18:
+        speak("Good Afternoon!")   
+
+    else:
+        speak("Good Evening!")  
+
+    speak("I am Natasha Sir. Please tell me how may I help you")       
+    
+def takeCommand():
+    #It takes microphone input from the user and returns string output
+    
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+
+    try:
+        print("Recognizing...")    
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
+
+    except Exception as e:
+        # print(e)    
+        print("Say that again please...")  
+        return "None"
+    return query
+if __name__=="__main__":
+    wishMe()
+    takeCommand() 
+def sendEmail(to, content):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.login('prag2468@gmail.com', 'your-password')
+    server.sendmail('pragship@yahoo.com', to, content)
+    server.close()
+
+def news():
+    main_url ='https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=e127becf1bcc4f46842c5f6a6f50b657'
+
+    main_page =requests.get(main_url).json()
+    articles= main_page["articles"]
+    head= []
+    day= ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth"]
+    for ar in articles:
+        head.append(ar["title"])
+    for i in range(len(day)):
+        speak(f"today's{day[i]} news is {head[i]}")    
+
+if __name__ == "__main__":
+    wishMe()
+    while True:
+    # if 1:
+        query = takeCommand().lower()
+
+        # Logic for executing tasks based on query
+        if 'wikipedia' in query:
+            speak('Searching Wikipedia...')
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences=2)
+            speak("According to Wikipedia")
+            print(results)
+            speak(results)
+
+        elif 'activate how to' in query:
+            speak('Searching mode is activated...')
+            how = takeCommand()
+            max_result= 1
+            how_to= search_wikihow(how,max_result)
+            assert len(how_to) ==1
+            how_to[0].print()
+            speak(how_to[0].summary)
+    
+        elif 'open youtube' in query:
+            speak('Opening Youtube...')
+            webbrowser.open("youtube.com")
+
+        elif 'open google' in query:
+            speak('Opening Google...')
+            webbrowser.open("google.com")
+
+        elif 'open whatsapp' in query:
+            speak('Opening whatsapp...')
+            webbrowser.open("web.whatsapp.com")
+
+        elif 'open stack overflow' in query:
+            webbrowser.open("stackoverflow.com")   
+
+        elif 'how are you' in query:
+            speak('I am glad to have you a master like you...')
+
+        elif 'you are a good girl' in query:
+            speak('Thank you So much sir...')
+
+        elif 'you are a bad girl' in query:
+            speak('fuck you, Get lost...')
+
+        elif 'who is your master' in query:
+            speak('let me think, yes his name is Pragyanshu...')
+
+        elif 'who is divya shah' in query:
+            speak('I guess she is your GF')
+
+        elif 'who is sapna' in query:
+            speak('yes, she is your friend in vivekananda batch ')      
+
+
+        elif 'play music' in query:
+            music_dir = 'C:\\Users\\Prag\\Downloads\\music'
+            songs = os.listdir(music_dir)
+            print(songs)    
+            os.startfile(os.path.join(music_dir, songs[0]))
+
+        elif 'what is the time' in query:
+            strTime = datetime.datetime.now().strftime("%H:%M:%S")    
+            speak(f"Sir, the time is {strTime}")
+
+        elif 'open code' in query:
+            codePath = "C:\\Users\\Prag\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+            os.startfile(codePath)
+
+        elif 'email to harry' in query:
+            try:
+                speak("What should I say?")
+                content = takeCommand()
+                to = "harryyourEmail@gmail.com"    
+                sendEmail(to, content)
+                speak("Email has been sent!")
+            except Exception as e:
+                print(e)
+                speak("Sorry my friend Prag bhai. I am not able to send this email")    
+        elif 'open notepad' in query:
+            npath= "C:\\Windows\\system32\\notepad.exe"
+            os.startfile(npath)
+        
+        elif 'open Brave' in query:
+            bpath = "C:\\Program^ Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+            os.startfile(bpath)
+            #/c/Program Files/BraveSoftware/Brave-Browser/Application
+
+            #"C:\Program Files\BraveSoftware\Brave-Browser
+        elif 'open command prompt' in query:
+            os.system("start cmd")
+        
+        elif 'open camera' in query:
+            cap= cv2.VideoCapture(0)
+            while True:
+                ret, img = cap.read()
+                cv2.inshow('webcam',img)
+                k= cv2.waitKey(50)
+                if k ==27:
+                    break
+            cap.release()
+            cv2.destroyAllWindows
+        elif 'ip address' in query:
+            ip = get('https://api.ipify.org').text
+            speak(f"Sir, Your IP address is{ip}")    
+        
+
+        elif 'google search' in query:
+            speak('Sir, what should i search on google')
+            cm = takeCommand()
+            speak(f'searchimg{cm}')
+            webbrowser.open(f"{cm}")   
+
+
+        elif 'send message' in query:
+            kit.sendwhatmsg("+918920486081","This is a testing msg",13,53)
+
+        elif 'play song' in query:
+            speak('Sir, which song you want to hear?')
+            input= takeCommand()
+            speak(f'playing{input}')
+            kit.playonyt(input)    
+
+        elif 'tell me a joke' in query:
+            joke = pyjokes.get_joke()
+            speak(joke)
+
+        elif 'shut down the system' in query:
+            os.system("shutdown /s /t 5")
+
+        elif 'restart the system' in query:
+            os.system("shutdown /r /t 5")  
+
+        elif 'sleep the system' in query:
+            os.system("rund1132.exe powrprof.dll,SetSuspendState 0,1,1") 
+        
+        elif 'switch the windows' in query:
+            pyautogui.keyDown("alt")
+            time.sleep(1)
+            pyautogui.keyUp("alt")
+        
+        elif 'set alarm' in query:
+            nn= int(datetime.datetime.now().hour)
+            if nn==23:
+                music_dir = 'C:\\Users\\Prag\\Downloads\\music'
+                songs = os.listdir(music_dir)
+                os.startfile(os.path.join(music_dir,songs[0]))
+
+        elif 'say hello to my friend' in query:
+            speak('Sir, what is your friend name')
+            input= takeCommand()
+            speak(f'hello{input}')
+
+        elif 'hello natasha' in query:
+            speak("Hi Sir, What's up")
+
+        elif 'i am feeling alone' in query:
+            speak("Sir, I'm here with you")
+            speak(" if you wish, I  can play some music or jokes for you")
+
+         
